@@ -4,8 +4,17 @@ class Item:
     # if an item is Solid, it does something when interacted with but cannot be added to the Adventurer inventory
     # if an item is Decor it simply exists and does nothing but set the scene
     # if an item is a Pickup it can be added to the inventory
+    # if an item is Used if it can no longer be interacted with
 
     def __init__(self, name, description, status):
-        item_name = name
-        item_description = description
-        item_status = status
+        self.item_name = name
+        self.item_description = description
+        self.item_status = status
+
+
+class Inventory:
+
+    def __init__(self):
+        self.inventory = {}
+        
+

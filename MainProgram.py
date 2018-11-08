@@ -36,3 +36,4 @@ def get_user_input():
 
 get_user_input()
 
+item_dictionary = {"Operating Theatre": {"Directions": ["North", "East"], {"Items": []}}}

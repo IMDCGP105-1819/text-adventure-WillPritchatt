@@ -5,12 +5,9 @@ from Things import *
 
 def go(player, rooms, direction=None):
     current_room = player.Current_Room
-    for i in rooms:
-        if i.room_name == current_room:
-            location = i
     if direction is not None:
-        link = Room.check_direction(location, direction)
-        if not link:
+        link = Room.check_direction(current_room, direction)
+        if link is not False:
             player.change_current_room(link)
     else:
         print("You must enter a direction")
@@ -49,12 +46,12 @@ def context():
     """)
 
 
-def list_of_items(item_list):
-    for i in item_list:
+def list_of_items(item_dict):
+    for i in item_dict:
         print(i)
 
 
-def get_help_input(item_list):
+def get_help_input(item_dict):
     user_input = " "
     while user_input != "":
         print("""The help menus are:
@@ -68,17 +65,17 @@ def get_help_input(item_list):
         elif user_input == "CONTEXT":
             context()
         elif user_input == "ITEMS":
-            list_of_items(item_list)
+            list_of_items(item_dict)
 
 
-def get_user_input(player, item_list, room_list):
+def get_user_input(player, item_dict, room_dict):
     user_input = 1
     while user_input != "QUIT":
         print("Enter next action")
         user_input = input("> ").upper()
         if user_input.startswith("GO"):
-            user_input = user_input.replace("GO", "")
-            go(player, room_list, user_input)
+            user_input = user_input.replace("GO ", "")
+            go(player, room_dict, user_input)
         elif user_input.startswith("LOOK"):
             user_input.replace("LOOK", "")
             if user_input.len() > 1:
@@ -98,29 +95,27 @@ def get_user_input(player, item_list, room_list):
 
 # Code Start
 
-item_list = []
-room_list = []
+item_dict = {}
+room_dict = {}
 
 player = Adventurer()
-item_list.append(Item("Self-Lighting Candle", "While it may look like a regular candle, it actually has a self-lighting"
-                                              " and self-extinguishing feature.", "Pickup"))
-item_list.append(Item("Compass", "A compass to help you find your way.", "Pickup"))
-item_list.append(Item("Electrified Ladder", "This ladder glows and crackles, you probably shouldn't touch it.",
-                      "Static"))
-item_list.append(Item("Ladder", "The ladder is no longer glowing or crackling, it can climb it now", "Static"))
-item_list.append(Item("Storage Wire", "This wire is connected to the ladder, it leads to the room to the west.",
-                      "Static"))
+item_dict["Self-Lighting Candle"] = Item("Self-Lighting Candle", "While it may look like a regular candle, it actually "
+                                                                 "has a self-lighting and self-extinguishing feature.",
+                                         "Pickup")
+item_dict["Compass"] = Item("Compass", "A compass to help you find your way.", "Pickup")
+item_dict["Electrified Ladder"] = Item("Electrified Ladder", "This ladder glows and crackles, you probably shouldn't "
+                                                             "touch it.", "Static")
+item_dict["Ladder"] = Item("Ladder", "The ladder is no longer glowing or crackling, it can climb it now", "Static")
+item_dict["Storage Wire"] = Item("Storage Wire", "This wire is connected to the ladder, it leads to the room to the "
+                                                 "west.", "Static")
 
-room_list.append(Room("Operating Theatre", "NORTH, EAST", [item_list[0], item_list[1]], {"NORTH": "Generator Room",
-                                                                                         "EAST": "Workshop"}))
-room_list.append(Room("Storage Room", "SOUTH, UP", [item_list[2], item_list[3], item_list[4]], {"SOUTH": "Workshop",
-                                                                                                "UP": "Lounge"}))
-room_list.append(Room("Generator Room", "SOUTH", [], {"SOUTH": "Operating Theatre"}))
-room_list.append(Room("Workshop", "NORTH, WEST", [], {"NORTH": "Storage Room", "WEST": "Operating Theatre"}))
-room_list.append(Room("Lounge", "SOUTH, WEST, DOWN", [], {}))
+room_dict["Operating Theatre"] = Room("Operating Theatre", ["Self-Lighting Candle", "Compass"],
+                                      {"NORTH": "Generator Room", "EAST": "Workshop"})
+room_dict["Storage Room"] = Room("Storage Room", ["Electrified Ladder", "Ladder", "Storage Wire"],
+                                 {"SOUTH": "Workshop", "UP": "Lounge"})
+room_dict["Generator Room"] = Room("Generator Room", [], {"SOUTH": "Operating Theatre"})
+room_dict["Workshop"] = Room("Workshop", [], {"NORTH": "Storage Room", "WEST": "Operating Theatre"})
+room_dict["Lounge"] = Room("Lounge", [], {"Down": "Storage Room"})
 
-get_user_input(player, item_list, room_list)
-
-
-
+get_user_input(player, item_dict, room_dict)
 

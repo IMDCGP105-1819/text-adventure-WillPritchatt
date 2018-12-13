@@ -1,13 +1,13 @@
 class Room:
 
-    def __init__(self, name, directions, interactables, link):
+    def __init__(self, name, interactables, link):
         self.room_name = name
-        self.room_directions = directions
         self.room_items = interactables
         self.linked_rooms = link
+        self.enter = False
 
     def check_direction(self, input_direction):
-        for i in self.room_directions:
+        for i in self.linked_rooms:
             if i in input_direction:
                 link = self.linked_rooms[input_direction]
                 return link

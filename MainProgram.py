@@ -2,11 +2,16 @@ from Adventurer import *
 from Rooms import *
 from Things import *
 
-def go(direction=None):
+
+def go(player, rooms, direction=None):
+    current_room = player.Current_Room
+    for i in rooms:
+        if i.room_name == current_room:
+            location = i
     if direction is not None:
-        for i in range(4):
-            if direction == "N" or direction == "NORTH":
-                Room.check_direction(direction)
+        link = Room.check_direction(location, direction)
+        if not link:
+            player.change_current_room(link)
     else:
         print("You must enter a direction")
 
@@ -37,12 +42,16 @@ def commands():
     'Drop' - Drop and item from your inventory on the ground in the room you are currently in
     'Use'  - Use the specified item. This command may require extra context, such as 'Use Wrench Throw'""")
 
+
 def context():
-    pass
+    print(""""This contains all of the different context arguments
+    Throw - Will throw an item in your inventory. Specifying an item in the room will throw the item at the specified item.
+    """)
 
 
 def list_of_items(item_list):
-    pass
+    for i in item_list:
+        print(i)
 
 
 def get_help_input(item_list):
@@ -62,26 +71,25 @@ def get_help_input(item_list):
             list_of_items(item_list)
 
 
-def get_user_input():
+def get_user_input(player, item_list, room_list):
     user_input = 1
     while user_input != "QUIT":
         print("Enter next action")
         user_input = input("> ").upper()
         if user_input.startswith("GO"):
-            user_input.replace("GO", "")
-            go(user_input)
+            user_input = user_input.replace("GO", "")
+            go(player, room_list, user_input)
         elif user_input.startswith("LOOK"):
             user_input.replace("LOOK", "")
             if user_input.len() > 1:
-                look(user_input)
+                look(player, user_input)
             else:
                 look()
         elif user_input.startswith("TAKE"):
             user_input.replace("TAKE", "")
-            take(user_input)
+            take(player, user_input)
         elif user_input.startswith("DROP"):
             user_input.replace("DROP", "")
-            drop(user_input)
         elif user_input == "HELP":
             get_help_input()
         else:
@@ -93,30 +101,25 @@ def get_user_input():
 item_list = []
 room_list = []
 
-Candle = Item("Self-Lighting Candle", "While it may look like a regular candle, it actually has a self-lighting and"
-                                      " self-extinguishing feature.", "Pickup")
-item_list.append(Candle)
-Compass = Item("Compass", "A compass to help you find your way.", "Pickup")
-item_list.append(Compass)
-Electrified_Ladder = Item("Electrified Ladder", "This ladder glows and crackles, you probably shouldn't touch it."
-                          "Static")
-item_list.append(Electrified_Ladder)
-Ladder = Item("Ladder", "The ladder is no longer glowing or crackling, it can climb it now", "Static")
-item_list.append(Ladder)
-Storage_Wire = Item("Storage Wire", "This wire is connected to the ladder, it leads to the room to the west.", "Static")
-item_list.append(Storage_Wire)
+player = Adventurer()
+item_list.append(Item("Self-Lighting Candle", "While it may look like a regular candle, it actually has a self-lighting"
+                                              " and self-extinguishing feature.", "Pickup"))
+item_list.append(Item("Compass", "A compass to help you find your way.", "Pickup"))
+item_list.append(Item("Electrified Ladder", "This ladder glows and crackles, you probably shouldn't touch it.",
+                      "Static"))
+item_list.append(Item("Ladder", "The ladder is no longer glowing or crackling, it can climb it now", "Static"))
+item_list.append(Item("Storage Wire", "This wire is connected to the ladder, it leads to the room to the west.",
+                      "Static"))
 
-Operating_Theater = Room("Operating Theatre", "North, East", [Candle, Compass])
-room_list.append(Operating_Theater)
-Storage_Room = Room("Storage Room", "South, Up", [Electrified_Ladder, Ladder])
-room_list.append(Storage_Room)
-Generator_Room = Room("Generator Room", "West, North", [])
-room_list.append(Generator_Room)
-Workshop = Room("Workshop", "North, West", [])
-Lounge = Room("Lounge", "South, West, Down", [])
-room_list.append(Lounge)
+room_list.append(Room("Operating Theatre", "NORTH, EAST", [item_list[0], item_list[1]], {"NORTH": "Generator Room",
+                                                                                         "EAST": "Workshop"}))
+room_list.append(Room("Storage Room", "SOUTH, UP", [item_list[2], item_list[3], item_list[4]], {"SOUTH": "Workshop",
+                                                                                                "UP": "Lounge"}))
+room_list.append(Room("Generator Room", "SOUTH", [], {"SOUTH": "Operating Theatre"}))
+room_list.append(Room("Workshop", "NORTH, WEST", [], {"NORTH": "Storage Room", "WEST": "Operating Theatre"}))
+room_list.append(Room("Lounge", "SOUTH, WEST, DOWN", [], {}))
 
-get_user_input()
+get_user_input(player, item_list, room_list)
 
 
 

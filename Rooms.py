@@ -6,13 +6,3 @@ class Room:
         self.linked_rooms = link
         self.enter = False
 
-    def check_direction(self, input_direction):
-        for i in self.linked_rooms:
-            if i in input_direction:
-                link = self.linked_rooms[input_direction]
-                return link
-            else:
-                return False
-
-    def entered_room(self):
-        pass

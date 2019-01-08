@@ -3,26 +3,50 @@ from Rooms import *
 from Things import *
 
 
-def go(player, rooms, direction=None):
-    current_room = player.Current_Room
-    if direction is not None:
-        link = Room.check_direction(current_room, direction)
-        if link is not False:
-            player.change_current_room(link)
+def go(player, rooms, direction):
+    if direction != "":
+        current_room = player.Current_Room
+        try:
+            if rooms[current_room].linked_rooms[direction] is not False:
+                link = rooms[current_room].linked_rooms[direction]
+                if link is not False:
+                    player.change_current_room(link)
+        except KeyError:
+            print("{0} does not have a {1} facing exit, remember to use your COMPASS!".format(current_room, direction))
     else:
         print("You must enter a direction")
 
 
-def look(item=None):
-    pass
+def look(player, item, item_dict, rooms):
+    current_room = player.Current_Room
+    if look != "":
+        if look == "COMPASS":
+            connected_rooms = []
+            if item_dict[item].held is True:
+                connected_rooms.appened(rooms[current_room].linked_rooms)
 
 
-def take(item):
-    pass
+def take(player, item, item_dict, rooms):
+    current_room = player.Current_Room
+    if item in rooms[current_room].room_items and item_dict[item].item_status == "Pickup":
+        player.Inventory.append(item)
+        rooms[current_room].room_items.remove(item)
+        print(rooms[current_room].room_items)
 
 
-def drop(item):
-    pass
+def drop(player, item, item_dict, rooms):
+    if item != "":
+        current_room = player.Current_Room
+        try:
+            if item in player.Inventory:
+                player.Inventory.remove(item)
+                rooms[current_room].room_items.append(item)
+            else:
+                print("You are not holding {0}".format(item))
+        except ValueError:
+            print("{0} is not a valid item. Type 'Inventory' to check your held items".formtat(item))
+    else:
+        print("You must enter an item to drop")
 
 
 def use(item):
@@ -74,21 +98,28 @@ def get_user_input(player, item_dict, room_dict):
         print("Enter next action")
         user_input = input("> ").upper()
         if user_input.startswith("GO"):
-            user_input = user_input.replace("GO ", "")
+            user_input = user_input.replace("GO", "")
+            user_input = user_input.strip()
             go(player, room_dict, user_input)
         elif user_input.startswith("LOOK"):
             user_input.replace("LOOK", "")
-            if user_input.len() > 1:
-                look(player, user_input)
+            user_input = user_input.strip()
+            if len(user_input) > 1:
+                look(player, user_input, item_dict, room_dict)
             else:
-                look()
+                look(user_input)
         elif user_input.startswith("TAKE"):
-            user_input.replace("TAKE", "")
-            take(player, user_input)
+            user_input = user_input.replace("TAKE", "")
+            user_input = user_input.strip()
+            take(player, user_input, item_dict, room_dict)
         elif user_input.startswith("DROP"):
-            user_input.replace("DROP", "")
+            user_input = user_input.replace("DROP", "")
+            user_input = user_input.strip()
+            drop(player, user_input, item_dict, room_dict)
+        elif user_input == "INVENTORY":
+            print(player.Inventory)
         elif user_input == "HELP":
-            get_help_input()
+            get_help_input(user_input)
         else:
             "Invalid input, type 'Help' to see a list of help menus"
 
@@ -99,23 +130,32 @@ item_dict = {}
 room_dict = {}
 
 player = Adventurer()
-item_dict["Self-Lighting Candle"] = Item("Self-Lighting Candle", "While it may look like a regular candle, it actually "
+item_dict["SELF-LIGHTING CANDLE"] = Item("SELF-LIGHTING CANDLE", "While it may look like a regular candle, it actually "
                                                                  "has a self-lighting and self-extinguishing feature.",
                                          "Pickup")
-item_dict["Compass"] = Item("Compass", "A compass to help you find your way.", "Pickup")
-item_dict["Electrified Ladder"] = Item("Electrified Ladder", "This ladder glows and crackles, you probably shouldn't "
+item_dict["COMPASS"] = Item("COMPASS", "A COMPASS to help you find your way.", "Pickup")
+item_dict["ELECTRIFIED LADDER"] = Item("ELECTRIFIED LADDER", "This LADDER glows and crackles, you probably shouldn't "
                                                              "touch it.", "Static")
-item_dict["Ladder"] = Item("Ladder", "The ladder is no longer glowing or crackling, it can climb it now", "Static")
-item_dict["Storage Wire"] = Item("Storage Wire", "This wire is connected to the ladder, it leads to the room to the "
+item_dict["LADDER"] = Item("LADDER", "The LADDER is no longer glowing or crackling, it can climb it now", "Static")
+item_dict["STORAGE WIRE"] = Item("STORAGE WIRE", "This wire is connected to the LADDER, it leads to the room to the "
                                                  "west.", "Static")
 
-room_dict["Operating Theatre"] = Room("Operating Theatre", ["Self-Lighting Candle", "Compass"],
+room_dict["Operating Theatre"] = Room("Operating Theatre", ["SELF-LIGHTING CANDLE", "COMPASS"],
                                       {"NORTH": "Generator Room", "EAST": "Workshop"})
-room_dict["Storage Room"] = Room("Storage Room", ["Electrified Ladder", "Ladder", "Storage Wire"],
+room_dict["Storage Room"] = Room("Storage Room", ["ELECTRIFIED LADDER", "LADDER", "STORAGE WIRE"],
                                  {"SOUTH": "Workshop", "UP": "Lounge"})
 room_dict["Generator Room"] = Room("Generator Room", [], {"SOUTH": "Operating Theatre"})
-room_dict["Workshop"] = Room("Workshop", [], {"NORTH": "Storage Room", "WEST": "Operating Theatre"})
+room_dict["Workshop"] = Room("Workshop", [], {"NORTH": "STORAGE Room", "WEST": "Operating Theatre"})
 room_dict["Lounge"] = Room("Lounge", [], {"Down": "Storage Room"})
+room_dict["Dining Room"] = Room(0, 0, 0)
+room_dict["Kitchen"] = Room(0, 0, 0)
+room_dict["Lobby"] = Room(0, 0, 0)
+room_dict["Landing"] = Room(0, 0, 0)
+room_dict["Boiler"] = Room(0, 0, 0)
+room_dict["Bedroom"] = Room(0, 0, 0)
+room_dict["Bathroom"] = Room(0, 0, 0)
+
+print(room_dict["Generator Room"].room_name)
 
 get_user_input(player, item_dict, room_dict)
 

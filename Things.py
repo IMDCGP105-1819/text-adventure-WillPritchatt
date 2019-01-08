@@ -10,9 +10,3 @@ class Item:
         self.item_name = name
         self.item_description = description
         self.item_status = status
-
-
-class Inventory:
-
-    def __init__(self):
-        self.inventory = {}

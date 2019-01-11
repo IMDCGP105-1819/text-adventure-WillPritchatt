@@ -8,4 +8,4 @@ class Adventurer:
 
     def change_current_room(self, link):
         self.Current_Room = link
-        print(self.Current_Room)
+        print(link)
